@@ -1,0 +1,575 @@
+<html>
+  <head>
+      <title>Project 2</title>
+      <style>
+            body {
+              display: flex;
+              justify-content: center;
+            }
+            .outer {
+              border: 1.5px solid black;
+              box-shadow: 0.5em 0.3em 0em 0em rgba(90, 85, 85, 0.208);
+              margin-right: 2em;
+              width: 90em;
+            }
+            h1 {
+              text-align: center;
+            }
+            .inner {
+              border: 1px solid black;
+              width: 90%;
+              height: 22em;
+              margin-left: 0.65em;
+              padding-left: 1em;
+            }
+            .contentVid {
+              padding-top: 4em;
+            }
+            .contentDisk, .contentSSD {
+              padding-top: 2em;
+            }
+            .btnPrevious, .btnNext, .btnNew, .btnUpdate {
+              width: 7em;
+              height: 3em;
+              margin-top: 1em;
+              margin-left: 4.6em;
+            }
+      </style>
+      <script language="JavaScript" type="text/JavaScript">
+        //Global index variable
+        var currentIndex = 0;
+        var SSDArray = [];
+        var videoDeviceArray = [];
+        var hardDiskArray = [];
+        //1. Create a base class called “Device” 
+        class Device {
+          // boolean property called “deployed”
+          constructor(replacementCost, supplierName, serialNumber) {
+            this._deployed = false;
+            this._replacementCost = replacementCost;
+            this._supplierName = supplierName;
+            this._serialNumber = serialNumber;
+          } 
+          // getter and a setter
+          get deployed() {
+            return this._deployed;
+          }
+          set deployed(deployed) {
+            this._deployed = deployed;
+          }
+          get replacementCost() {
+            return this._replacementCost;
+          }
+          set replacementCost(replacementCost) {
+            this._replacementCost = replacementCost;
+          }
+          get supplierName() {
+            return this._supplierName;
+          }
+          set supplierName(supplierName) {
+            this._supplierName = supplierName;
+          }
+          get serialNumber() {
+            return this._serialNumber;
+          }
+          set serialNumber(serialNumber) {
+            this._serialNumber = serialNumber;
+          }
+        }
+        //2. Create two derived classes “VideoDevice” and “DiskDevice” that both inherit
+        //    from “Device” 
+        class VideoDevice extends Device {
+          constructor(replacementCost, supplierName, serialNumber, resolution, videoDeviceType) {
+            super(replacementCost, supplierName, serialNumber);
+            this._resolution = resolution;
+            this._videoDeviceType = videoDeviceType;
+          }
+          get resolution() {
+            return this._resolution;
+          }
+          set resolution(resolution) {
+            this._resolution = resolution;
+          }
+          get videoDeviceType() {
+            return this._videoDeviceType;
+          }
+          set videoDeviceType(videoDeviceType) {
+            this._videoDeviceType = videoDeviceType;
+          }
+        }
+        class DiskDevice extends Device {
+          constructor(replacementCost, supplierName, serialNumber, size, transferRate) {
+            super(replacementCost, supplierName, serialNumber);
+            this._size = size;
+            this._transferRate = transferRate;
+          }
+          get size() {
+            return this._size;
+          }
+          set size(size) {
+            this._size = size;
+          }
+          get transferRate() {
+            return this._transferRate;
+          }
+          set transferRate(transferRate) {
+            this._transferRate = transferRate;
+          }
+        }
+        //3. Create two more derived classes “HardDisk” and “SSD” that both inherit from
+        //   “DiskDevice” 
+        class HardDisk extends DiskDevice {
+          constructor(replacementCost, supplierName, serialNumber, size, transferRate, platterSize, numPlatters) {
+            super(replacementCost, supplierName, serialNumber, size, transferRate);
+            this._platterSize = platterSize;
+            this._numPlatters = numPlatters;
+          }
+          get platterSize() {
+            return this._platterSize;
+          }
+          set platterSize(platterSize) {
+            this._platterSize = platterSize;
+          }
+          get numPlatters() {
+            return this._numPlatters;
+          }
+          set numPlatters(numPlatters) {
+            this._numPlatters = numPlatters;
+          }
+        }
+        
+        class SSD extends DiskDevice {
+         constructor(replacementCost, supplierName, serialNumber, size, transferRate, SSDType, wearLeveling) {
+           super(replacementCost, supplierName, serialNumber, size, transferRate);
+           this._SSDType = SSDType;
+           this._wearLeveling = wearLeveling;
+         }
+         get SSDType() {
+           return this._SSDType;
+         }
+         set SSDType(SSDType) {
+           this._SSDType = SSDType;
+         }
+         get wearLeveling() {
+           return this._wearLeveling;
+         }
+         set wearLeveling(wearLeveling) {
+           this._wearLeveling = wearLeveling;
+         }
+        }
+        //Create each object
+        function updateVideoDevice() {
+          var deployed = $gel("videoDeviceDeployed").checked;
+          var replacementCost = $gel("videoDeviceReplacementCost").value;
+          var supplierName = $gel("videoDeviceSupplierName").value;
+          var serialNumber = $gel("videoDeviceSerialNumber").value;
+          var resolution = $gel("resolution").value;
+          var videoDeviceType = $gel("videoDeviceType").value;
+          var isEmptyCost = testEmpty("videoDeviceReplacementCost");
+          var isEmptySuppName = testEmpty("videoDeviceSupplierName");
+          var isEmptySeriNum = testEmpty("videoDeviceSerialNumber");
+          var currentVisibleObjIndex = videoDeviceArray[currentIndex];
+          if(currentVisibleObjIndex && !isEmptyCost && !isEmptySuppName && !isEmptySeriNum) {
+            videoDeviceArray[currentIndex].deployed = deployed;
+            videoDeviceArray[currentIndex].replacementCost = replacementCost;
+            videoDeviceArray[currentIndex].supplierName = supplierName;
+            videoDeviceArray[currentIndex].serialNumber = serialNumber;
+            videoDeviceArray[currentIndex].resolution = resolution;
+            videoDeviceArray[currentIndex].videoDeviceType = videoDeviceType;
+            return;
+          }
+          //if isEmpty is true, dont store it into the array
+          if (!isEmptyCost && !isEmptySuppName && !isEmptySeriNum) {
+            var videoDevice = new VideoDevice(replacementCost, supplierName, serialNumber, resolution, videoDeviceType);
+            videoDevice.deployed = deployed;
+            videoDeviceArray.push(videoDevice);
+          }
+        }
+        function updateHardDisk() {
+          //Create array to store each created object
+          var deployed = $gel("hardDiskDeployed").checked;
+          var replacementCost = $gel("hardDiskReplacementCost").value;
+          var supplierName = $gel("hardDiskSupplierName").value;
+          var serialNumber = $gel("hardDiskSerialNumber").value;
+          var size = $gel("hardDiskSize").value;
+          var transferRate = $gel("hardDiskTransferRate").value;
+          var platterSize = $gel("platterSize").value;
+          var numPlatters = $gel("numPlatters").value;
+          var isEmptyCost = testEmpty("hardDiskReplacementCost");
+          var isEmptySuppName = testEmpty("hardDiskSupplierName");
+          var isEmptySeriNum = testEmpty("hardDiskSerialNumber");
+          var currentVisibleObjIndex = hardDiskArray[currentIndex];
+          if(currentVisibleObjIndex && !isEmptyCost && !isEmptySuppName && !isEmptySeriNum) {
+            hardDiskArray[currentIndex].deployed = deployed;
+            hardDiskArray[currentIndex].replacementCost = replacementCost;
+            hardDiskArray[currentIndex].supplierName = supplierName;
+            hardDiskArray[currentIndex].serialNumber = serialNumber;
+            hardDiskArray[currentIndex].size = size;
+            hardDiskArray[currentIndex].transferRate = transferRate;
+            hardDiskArray[currentIndex].platterSize = platterSize;
+            hardDiskArray[currentIndex].numPlatters = numPlatters;
+            return;
+          }
+          //if isEmpty is true, dont store it into the array
+          if (!isEmptyCost && !isEmptySuppName && !isEmptySeriNum) {
+            var hardDisk = new HardDisk(replacementCost, supplierName, serialNumber, size, transferRate, platterSize, numPlatters);
+            hardDisk.deployed = deployed;
+            hardDiskArray.push(hardDisk);
+            currentIndex = hardDiskArray.length - 1;
+          } 
+        }
+        function updateSSD() {
+          //Create array to store objects
+          var deployed = $gel("SSDDeployed").checked;
+          var replacementCost = $gel("SSDReplacementCost").value;
+          var supplierName = $gel("SSDSupplierName").value;
+          var serialNumber = $gel("SSDSerialNumber").value;
+          var size = $gel("SSDSize").value;
+          var transferRate = $gel("SSDTransferRate").value;
+          var SSDType = $gel("SSDType").value;
+          var wearLeveling = $gel("wearLeveling").checked;
+          var isEmptyCost = testEmpty("SSDReplacementCost");
+          var isEmptySuppName = testEmpty("SSDSupplierName");
+          var isEmptySeriNum = testEmpty("SSDSerialNumber");
+          var currentVisibleObjIndex = SSDArray[currentIndex];
+          if(currentVisibleObjIndex && !isEmptyCost && !isEmptySuppName && !isEmptySeriNum) {
+            SSDArray[currentIndex].deployed = deployed;
+            SSDArray[currentIndex].replacementCost = replacementCost;
+            SSDArray[currentIndex].supplierName = supplierName;
+            SSDArray[currentIndex].serialNumber = serialNumber;
+            SSDArray[currentIndex].size = size;
+            SSDArray[currentIndex].transferRate = transferRate;
+            SSDArray[currentIndex].SSDType = SSDType;
+            SSDArray[currentIndex].wearLeveling = wearLeveling;
+            return;
+          }
+          //if isEmpty is true, dont store it into the array
+          if (!isEmptyCost && !isEmptySuppName && !isEmptySeriNum) {
+            var SSDObj = new SSD(replacementCost, supplierName, serialNumber, size, transferRate, SSDType, wearLeveling);
+            SSD.deployed = deployed;
+            SSDArray.push(SSDObj);
+            currentIndex = SSDArray.length - 1;
+          } 
+        }
+
+        //---Button functions---//
+        function previousVideoDevice() {
+          if (currentIndex > 0) {
+            currentIndex--;
+          }
+          else {
+            currentIndex = videoDeviceArray.length - 1;
+          }
+          // Update the displayed details with the previous object
+          displayDetails(videoDeviceArray[currentIndex]);          
+        }
+        function previousHardDisk() {
+          if (currentIndex > 0) {
+            currentIndex--;
+          }
+          else {
+            currentIndex = hardDiskArray.length - 1;
+          }
+          displayDetails(hardDiskArray[currentIndex]);
+        }
+        function previousSSD() {
+          if (currentIndex > 0) {
+            currentIndex--;
+          }
+          else {
+            currentIndex = SSDArray.length - 1;
+          }
+          // Update the displayed details with the previous object
+          displayDetails(SSDArray[currentIndex]);
+        }
+
+        function nextVideoDevice() {
+          if (currentIndex >= 0 && currentIndex < videoDeviceArray.length - 1) {
+            currentIndex++;
+          }
+          else {
+            currentIndex = 0;
+          } 
+          displayDetails(videoDeviceArray[currentIndex]);
+        }
+        function nextHardDisk() {
+          if (currentIndex >= 0 && currentIndex < hardDiskArray.length - 1) {
+            currentIndex++;
+          }
+          else {
+            currentIndex = 0;
+          } 
+          displayDetails(hardDiskArray[currentIndex]);
+        }
+        function nextSSD() {
+          if (currentIndex >= 0 && currentIndex < SSDArray.length - 1) {
+            currentIndex++;
+          }
+          else {
+            currentIndex = 0;
+          } 
+          displayDetails(SSDArray[currentIndex]);
+        }
+
+        function newVideoDevice() {
+          $gel("videoDeviceDeployed").checked = false;
+          $gel("videoDeviceReplacementCost").value = "";
+          $gel("videoDeviceSupplierName").value = "";
+          $gel("videoDeviceSerialNumber").value = "";
+          $gel("resolution").selectedIndex = 0;
+          $gel("videoDeviceType").selectedIndex = 0;
+				  $gel("videoDeviceReplacementCost").style.backgroundColor = "white";
+				  $gel("videoDeviceSupplierName").style.backgroundColor = "white";
+				  $gel("videoDeviceSerialNumber").style.backgroundColor = "white";
+          currentIndex = videoDeviceArray.length;
+        }
+        function newHardDisk() {  
+          $gel("hardDiskDeployed").checked = false;
+          $gel("hardDiskReplacementCost").value = "";
+          $gel("hardDiskSupplierName").value = "";
+          $gel("hardDiskSerialNumber").value = "";
+          $gel("hardDiskSize").selectedIndex = 0;
+          $gel("hardDiskTransferRate").selectedIndex = 0;
+          $gel("platterSize").selectedIndex = 0;
+          $gel("numPlatters").selectedIndex = 0;
+				  $gel("hardDiskReplacementCost").style.backgroundColor = "white";
+				  $gel("hardDiskSupplierName").style.backgroundColor = "white";
+				  $gel("hardDiskSerialNumber").style.backgroundColor = "white";
+          currentIndex = hardDiskArray.length;
+        }
+        function newSSD() {
+          $gel("SSDDeployed").checked = false;
+          $gel("SSDReplacementCost").value = "";
+          $gel("SSDSupplierName").value = "";
+          $gel("SSDSerialNumber").value = "";
+          $gel("SSDSize").selectedIndex = 0;
+          $gel("SSDTransferRate").selectedIndex = 0;
+          $gel("SSDType").selectedIndex = 0;
+          $gel("wearLeveling").checked = false;
+				  $gel("SSDReplacementCost").style.backgroundColor = "white";
+				  $gel("SSDSupplierName").style.backgroundColor = "white";
+				  $gel("SSDSerialNumber").style.backgroundColor = "white";
+          currentIndex = SSDArray.length;
+        }
+        //an array of each object type to facilitate the ability to switch to the
+        //next or previous object. 
+        function $gel(id) {
+			    return document.getElementById(id);
+		    }
+        //test empty field -> if empty, not put into value
+        function testEmpty(id) {
+			    if ($gel(id).value === "") {
+				    $gel(id).style.backgroundColor = "pink";
+            return true;
+			    }
+			    else {
+				    $gel(id).style.backgroundColor = "white";
+            return false;
+			    }
+		    }
+
+        function displayDetails(device) {
+          if (device instanceof VideoDevice) {
+            // Display VideoDevice details
+            $gel("videoDeviceDeployed").checked = device.deployed;
+            $gel("videoDeviceReplacementCost").value = device.replacementCost;
+            $gel("videoDeviceSupplierName").value = device.supplierName;
+            $gel("videoDeviceSerialNumber").value = device.serialNumber;
+            $gel("resolution").value = device.resolution;
+            $gel("videoDeviceType").value = device.videoDeviceType;
+				    $gel("videoDeviceReplacementCost").style.backgroundColor = "white";
+				    $gel("videoDeviceSupplierName").style.backgroundColor = "white";
+				    $gel("videoDeviceSerialNumber").style.backgroundColor = "white";
+          } 
+          else if (device instanceof HardDisk) {
+            // Display HardDisk details
+            $gel("hardDiskDeployed").checked = device.deployed;
+            $gel("hardDiskReplacementCost").value = device.replacementCost;
+            $gel("hardDiskSupplierName").value = device.supplierName;
+            $gel("hardDiskSerialNumber").value = device.serialNumber;
+            $gel("hardDiskSize").value = device.size;
+            $gel("hardDiskTransferRate").value = device.transferRate;
+            $gel("platterSize").value = device.platterSize;
+            $gel("numPlatters").value = device.numPlatters;
+				    $gel("hardDiskReplacementCost").style.backgroundColor = "white";
+				    $gel("hardDiskSupplierName").style.backgroundColor = "white";
+				    $gel("hardDiskSerialNumber").style.backgroundColor = "white";
+          } 
+          else if (device instanceof SSD) {
+            // Display SSD details
+            $gel("SSDDeployed").checked = device.deployed;
+            $gel("SSDReplacementCost").value = device.replacementCost;
+            $gel("SSDSupplierName").value = device.supplierName;
+            $gel("SSDSerialNumber").value = device.serialNumber;
+            $gel("SSDSize").value = device.size;
+            $gel("SSDTransferRate").value = device.transferRate;
+            $gel("SSDType").value = device.SSDType;
+            $gel("wearLeveling").checked = device.wearLeveling;
+				    $gel("SSDReplacementCost").style.backgroundColor = "white";
+				    $gel("SSDSupplierName").style.backgroundColor = "white";
+				    $gel("SSDSerialNumber").style.backgroundColor = "white";
+          }
+        }
+      </script>
+  </head>
+  <body>
+      <!-- Video Device Panel -->
+      <div class="outer">
+        <h1>Video Device</h1>
+        <div class="inner">
+          <div class="contentVid">
+            <label>Deployed?</label>
+            <input type="checkbox" id="videoDeviceDeployed">
+            <br><br>
+            <label>Replacement Cost</label>
+            <input type="text" id="videoDeviceReplacementCost" size="18">
+            <br><br>
+                
+            <label>Supplier Name</label>
+            <input type="text" id="videoDeviceSupplierName" size="18">
+            <br><br>
+            <label>Serial Number</label>
+            <input type="text" id="videoDeviceSerialNumber" size="18">
+            <br><br>
+                
+            <label>Resolution</label>
+            <select id="resolution">
+              <option>640 x 480</option>
+              <option>1280 x 720</option>
+              <option>1920 x 1080</option>
+              <option>2560 x 1440</option>
+              <option>3840 x 2160</option>
+              <option>7680 x 4320</option>
+            </select>
+            <br><br>
+            <label>Type</label>
+            <select id="videoDeviceType">
+              <option>LCD</option>
+              <option>LED</option>
+              <option>Plasma</option>
+            </select>
+            <br><br>
+            </div>
+        </div>
+        <input type="button" class="btnPrevious" value="Previous" onclick="previousVideoDevice()">
+        <input type="button" class="btnNext" value="Next" onclick="nextVideoDevice()">
+        <br>
+        <input type="button" class="btnNew" value="New" onclick="newVideoDevice()">
+        <input type="button" class="btnUpdate" value="Update" onclick="updateVideoDevice()">
+      </div>
+      <!-- Hard Disk Panel -->
+      <div class="outer">
+        <h1>Hard Disk</h1>
+        <div class="inner">
+          <div class="contentDisk">
+            <label>Deployed?</label>
+            <input type="checkbox" id="hardDiskDeployed" size="18">
+            <br><br>
+            <label>Replacement Cost</label>
+            <input type="text" id="hardDiskReplacementCost" size="18">
+            <br><br>
+            
+            <label>Supplier Name</label>
+            <input type="text" id="hardDiskSupplierName" size="18">
+            <br><br>
+            <label>Serial Number</label>
+            <input type="text" id="hardDiskSerialNumber" size="18">
+            <br><br>
+            
+            <label>Size</label>
+            <select id="hardDiskSize">
+              <option>500GB</option>
+              <option>1TB</option>
+              <option>2TB</option>
+              <option>3TB</option>
+              <option>4TB</option>
+              <option>8TB</option>
+            </select>
+            <br><br>
+            <label>Transfer Rate</label>
+            <select id="hardDiskTransferRate">
+                <option>480MB / second</option>
+                <option>5GB / second</option>
+                <option>7GB / second</option>
+                <option>10GB / second</option>
+            </select>
+            <br><br>
+            <label>Platter Size</label>
+            <select id="platterSize">
+                <option>2.5-inch</option>
+                <option>3.5-inch</option>
+            </select>
+            <br><br>
+            <label># of Platters</label>
+            <select id="numPlatters">
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+            </select>
+            <br><br>
+          </div>
+        </div>
+        <input type="button" class="btnPrevious" value="Previous" onclick="previousHardDisk()">
+        <input type="button" class="btnNext" value="Next" onclick="nextHardDisk()">
+        <br>
+        <input type="button" class="btnNew" value="New" onclick="newHardDisk()">
+        <input type="button" class="btnUpdate" value="Update" onclick="updateHardDisk()">
+      </div>
+      
+      <!-- SSD -->
+      <div class="outer">
+        <h1>SSD</h1>
+        <div class="inner">
+          <div class="contentSSD">
+            <label>Deployed?</label>
+            <input type="checkbox" id="SSDDeployed">
+            <br><br>
+            <label>Replacement Cost</label> 
+            <input type="text" id="SSDReplacementCost" size="18">
+            <br><br>
+            
+            <label>Supplier Name</label> 
+            <input type="text" id="SSDSupplierName" size="18">
+            <br><br>
+            <label>Serial Number</label> 
+            <input type="text" id="SSDSerialNumber" size="18">
+            <br><br>
+              
+            <label>Size</label>
+            <select id="SSDSize">
+                <option>500GB</option>
+                <option>1TB</option>
+                <option>2TB</option>
+                <option>3TB</option>
+                <option>4TB</option>
+                <option>8TB</option>
+            </select>
+            <br><br>
+            <label>Transfer Rate</label>
+            <select id="SSDTransferRate">
+                <option>480MB / second</option>
+                <option>5GB / second</option>
+                <option>7GB / second</option>
+                <option>10GB / second</option>
+            </select>
+            <br><br>
+            <label>Type</label>
+            <select id="SSDType">
+                <option>Flash</option>
+                <option>DRAM</option>
+            </select>
+            <br><br>
+            <label>Wear Leveling</label>
+            <input type="checkbox" id="wearLeveling">
+            <br><br>
+          </div>
+        </div>
+        <input type="button" class="btnPrevious" value="Previous" onclick="previousSSD()">
+        <input type="button" class="btnNext" value="Next" onclick="nextSSD()">
+        <br>
+        <input type="button" class="btnNew" value="New" onclick="newSSD()">
+        <input type="button" class="btnUpdate" value="Update" onclick="updateSSD()">
+      </div>
+  </body>
+</html>
